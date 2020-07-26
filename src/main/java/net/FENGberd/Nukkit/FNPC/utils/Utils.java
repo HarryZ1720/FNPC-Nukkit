@@ -54,7 +54,7 @@ public class Utils
 	
 	public static void loadLangStream(Map<String,String> d,InputStream stream) throws Exception
 	{
-		String content=cn.nukkit.utils.Utils.readFile(stream);
+		String content= cn.nukkit.utils.Utils.readFile(stream);
 		for(String line:content.split("\n"))
 		{
 			line=line.trim();

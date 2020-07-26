@@ -3,8 +3,10 @@ package net.FENGberd.Nukkit.FNPC;
 import java.util.*;
 
 import cn.nukkit.*;
+import cn.nukkit.event.entity.EntityLevelChangeEvent;
 import cn.nukkit.item.*;
 import cn.nukkit.event.*;
+import cn.nukkit.plugin.PluginBase;
 import cn.nukkit.utils.*;
 import cn.nukkit.command.*;
 import cn.nukkit.command.data.*;
@@ -23,7 +25,7 @@ import com.google.gson.*;
 import co.aikar.timings.Timings;
 
 @SuppressWarnings("unused")
-public class Main extends cn.nukkit.plugin.PluginBase implements cn.nukkit.event.Listener
+public class Main extends PluginBase implements Listener
 {
 	private static Main obj=null;
 	private static HashMap<String,RegisteredNPC> registeredNPC=new HashMap<>();
@@ -98,7 +100,7 @@ public class Main extends cn.nukkit.plugin.PluginBase implements cn.nukkit.event
 	}
 	
 	@EventHandler(priority=EventPriority.HIGH)
-	public void onPlayerMove(cn.nukkit.event.player.PlayerMoveEvent event)
+	public void onPlayerMove(PlayerMoveEvent event)
 	{
 		NPC.playerMove(event.getPlayer());
 	}
@@ -106,35 +108,34 @@ public class Main extends cn.nukkit.plugin.PluginBase implements cn.nukkit.event
 	@EventHandler(priority=EventPriority.HIGH)
 	public void onDataPacketReceive(DataPacketReceiveEvent event)
 	{
-		if(event.getPacket() instanceof CommandStepPacket)
+		/*if(event.getPacket() instanceof CommandRequestPacket)
 		{
-			CommandStepPacket pk=Utils.cast(event.getPacket());
-			if(pk.command.startsWith("fnpc "))
+			CommandRequestPacket pk=Utils.cast(event.getPacket());
+			if(pk.command.startsWith("/fnpc "))
 			{
 				String commandText=pk.command;
-				if(pk.args!=null)
+				if(pk.command.split(" ").length > 1)
 				{
-					CommandParameter[] pars=npcCommand.getCommandParameters(pk.overload);
+					CommandParameter[] pars=npcCommand.getCommandParameters(pk.command.split(" ")[1]);
 					if(pars!=null)
 					{
 						for(CommandParameter par:pars)
 						{
-							JsonElement arg=pk.args.get(par.name);
-							if(arg!=null)
+
+							if(par.type!=null)
 							{
 								switch(par.type)
 								{
-								case CommandParameter.ARG_TYPE_TARGET:
+								case TARGET:
 									CommandArg rules=new Gson().fromJson(arg,CommandArg.class);
 									commandText+=" "+rules.getRules()[0].getValue();
 									break;
-								case CommandParameter.ARG_TYPE_BLOCK_POS:
+								case POSITION:
 									CommandArgBlockVector bv=new Gson().fromJson(arg,CommandArgBlockVector.class);
 									commandText+=" "+bv.getX()+" "+bv.getY()+" " + bv.getZ();
 									break;
-								case CommandParameter.ARG_TYPE_STRING:
-								case CommandParameter.ARG_TYPE_STRING_ENUM:
-								case CommandParameter.ARG_TYPE_RAW_TEXT:
+								case STRING:
+								case RAWTEXT:
 									String string=new Gson().fromJson(arg, String.class);
 									commandText+=" "+string;
 									break;
@@ -159,9 +160,9 @@ public class Main extends cn.nukkit.plugin.PluginBase implements cn.nukkit.event
 			}
 		}
 		else
-		{
-			NPC.packetReceive(event.getPlayer(),event.getPacket());
-		}
+		{*/
+		NPC.packetReceive(event.getPlayer(),event.getPacket());
+		//}
 	}
 	
 	@EventHandler(priority=EventPriority.HIGH)
@@ -170,22 +171,22 @@ public class Main extends cn.nukkit.plugin.PluginBase implements cn.nukkit.event
 		if(event.getPacket() instanceof AvailableCommandsPacket)
 		{
 			AvailableCommandsPacket pk=Utils.cast(event.getPacket());
-			Map<String,CommandDataVersions> data=new Gson().fromJson(pk.commands,Map.class);
+			Map<String,CommandDataVersions> data=pk.commands;
 			npcCommand.processCustomCommandData(data);
-			pk.commands=new Gson().toJson(data);
+			pk.commands=data;
 		}
 	}
 	
 	@EventHandler(priority=EventPriority.HIGH)
-	public void onPlayerJoin(cn.nukkit.event.player.PlayerJoinEvent event)
+	public void onPlayerJoin(PlayerJoinEvent event)
 	{
 		NPC.spawnAllTo(event.getPlayer());
 	}
 	
 	@EventHandler(priority=EventPriority.HIGH)
-	public void onEntityLevelChange(cn.nukkit.event.entity.EntityLevelChangeEvent event)
+	public void onEntityLevelChange(EntityLevelChangeEvent event)
 	{
-		if(event.getEntity() instanceof cn.nukkit.Player)
+		if(event.getEntity() instanceof Player)
 		{
 			NPC.spawnAllTo(Utils.cast(event.getEntity()),event.getTarget());
 		}

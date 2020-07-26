@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" build-on-make="true" name="FNPC">
+    <output-path>$PROJECT_DIR$/../../../Nukkit一号/plugins</output-path>
+    <root id="archive" name="FNPC.jar">
+      <element id="module-output" name="FNPC-Nukkit-master" />
+    </root>
+  </artifact>
+</component>

@@ -3,6 +3,7 @@ package net.FENGberd.Nukkit.FNPC.commands;
 import cn.nukkit.*;
 import cn.nukkit.item.*;
 import cn.nukkit.lang.*;
+import cn.nukkit.permission.Permission;
 import cn.nukkit.utils.*;
 import cn.nukkit.command.*;
 import cn.nukkit.command.data.*;
@@ -21,67 +22,64 @@ public class NpcCommand extends Command
 	{
 		super("fnpc","");
 		this.setPermission("FNPC.command.fnpc");
-		this.setAliases(new String[]
-		{
-			"npc"
-		});
+
 		this.commandParameters.clear();
 		this.commandParameters.put("add",new CommandParameter[]
 		{
-			new CommandParameter("Type",CommandParameter.ARG_TYPE_STRING,false),
-			new CommandParameter("ID",CommandParameter.ARG_TYPE_STRING,false),
-			new CommandParameter("Name",CommandParameter.ARG_TYPE_STRING,false)
+			new CommandParameter("Type",CommandParamType.STRING,false),
+			new CommandParameter("ID",CommandParamType.STRING,false),
+			new CommandParameter("Name",CommandParamType.STRING,false)
 		});
 		this.commandParameters.put("remove",new CommandParameter[]
 		{
-			new CommandParameter("ID",CommandParameter.ARG_TYPE_STRING,false)
+			new CommandParameter("ID",CommandParamType.STRING,false)
 		});
 		this.commandParameters.put("type",new CommandParameter[0]);
 		this.commandParameters.put("skin",new CommandParameter[]
 		{
-			new CommandParameter("ID",CommandParameter.ARG_TYPE_STRING,false),
-			new CommandParameter("File",CommandParameter.ARG_TYPE_STRING,false)
+			new CommandParameter("ID",CommandParamType.STRING,false),
+			new CommandParameter("File",CommandParamType.STRING,false)
 		});
 		this.commandParameters.put("name",new CommandParameter[]
 		{
-			new CommandParameter("ID",CommandParameter.ARG_TYPE_STRING,false),
-			new CommandParameter("Name",CommandParameter.ARG_TYPE_STRING,false)
+			new CommandParameter("ID",CommandParamType.STRING,false),
+			new CommandParameter("Name",CommandParamType.STRING,false)
 		});
 		this.commandParameters.put("command",new CommandParameter[]
 		{
-			new CommandParameter("ID",CommandParameter.ARG_TYPE_STRING,false),
-			new CommandParameter("add|remove",CommandParameter.ARG_TYPE_STRING_ENUM,false),
-			new CommandParameter("Command",CommandParameter.ARG_TYPE_STRING,false)
+			new CommandParameter("ID",CommandParamType.STRING,false),
+			new CommandParameter("add|remove",CommandParamType.STRING,false),
+			new CommandParameter("Command",CommandParamType.STRING,false)
 		});
 		// TODO: command <ID> list
 		this.commandParameters.put("tphere",new CommandParameter[]
 		{
-			new CommandParameter("ID",CommandParameter.ARG_TYPE_STRING,false)
+			new CommandParameter("ID",CommandParamType.STRING,false)
 		});
 		this.commandParameters.put("teleport",new CommandParameter[]
 		{
-			new CommandParameter("ID",CommandParameter.ARG_TYPE_STRING,false)
+			new CommandParameter("ID",CommandParamType.STRING,false)
 		});
 		this.commandParameters.put("transfer",new CommandParameter[]
 		{
-			new CommandParameter("ID",CommandParameter.ARG_TYPE_STRING,false),
-			new CommandParameter("IP",CommandParameter.ARG_TYPE_STRING,false),
-			new CommandParameter("Port",CommandParameter.ARG_TYPE_INT,false)
+			new CommandParameter("ID",CommandParamType.STRING,false),
+			new CommandParameter("IP",CommandParamType.STRING,false),
+			new CommandParameter("Port",CommandParamType.INT,false)
 		});
 		this.commandParameters.put("reset",new CommandParameter[]
 		{
-			new CommandParameter("ID",CommandParameter.ARG_TYPE_STRING,false)
+			new CommandParameter("ID",CommandParamType.STRING,false)
 		});
 		this.commandParameters.put("reset",new CommandParameter[]
 		{
-			new CommandParameter("ID",CommandParameter.ARG_TYPE_STRING,false),
-			new CommandParameter("add|remove",CommandParameter.ARG_TYPE_STRING_ENUM,false),
-			new CommandParameter("Chat",CommandParameter.ARG_TYPE_STRING,false)
+			new CommandParameter("ID",CommandParamType.STRING,false),
+			new CommandParameter("add|remove",CommandParamType.STRING,false),
+			new CommandParameter("Chat",CommandParamType.STRING,false)
 		});
 		this.commandParameters.put("item",new CommandParameter[]
 		{
-			new CommandParameter("ID",CommandParameter.ARG_TYPE_STRING,false),
-			new CommandParameter("Item[:Damage]",CommandParameter.ARG_TYPE_STRING,false)
+			new CommandParameter("ID",CommandParamType.STRING,false),
+			new CommandParameter("Item[:Damage]",CommandParamType.STRING,false)
 		});
 		this.commandParameters.put("help",new CommandParameter[0]);
 	}
@@ -462,12 +460,8 @@ public class NpcCommand extends Command
 			{
 				CommandData customData=new CommandData();
 				customData.description=Server.getInstance().getLanguage().translateString(this.getDescription());
-				customData.permission="any";
-				customData.aliases=this.getAliases().clone();
-				for(int i=0;i<customData.aliases.length;i++)
-				{
-					customData.aliases[i]=customData.aliases[i]+" "+key;
-				}
+				customData.permission= 0;
+
 				CommandOverload overload=new CommandOverload();
 				overload.input.parameters=par;
 				customData.overloads.put(key,overload);

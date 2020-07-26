@@ -1,6 +1,7 @@
 package net.FENGberd.Nukkit.FNPC.npc;
 
 import cn.nukkit.*;
+import cn.nukkit.inventory.transaction.data.UseItemOnEntityData;
 import cn.nukkit.item.*;
 import cn.nukkit.math.*;
 import cn.nukkit.utils.*;
@@ -17,7 +18,7 @@ import java.io.*;
 import java.util.*;
 
 @SuppressWarnings("unused")
-public class NPC extends cn.nukkit.level.Location
+public class NPC extends Location
 {
 	public static HashMap<String,NPC> pool=new HashMap<>();
 	public static Config config;
@@ -93,10 +94,9 @@ public class NPC extends cn.nukkit.level.Location
 
 	public static void packetReceive(Player player,DataPacket packet)
 	{
-		if(packet.pid()==ProtocolInfo.INTERACT_PACKET && !packet.equals(NPC.packet_hash) && ((InteractPacket)packet).action==InteractPacket.ACTION_LEFT_CLICK)
+		if(packet.pid()==ProtocolInfo.INVENTORY_TRANSACTION_PACKET &&  ((InventoryTransactionPacket)packet).transactionType == InventoryTransactionPacket.TYPE_USE_ITEM_ON_ENTITY)
 		{
-			NPC.packet_hash=packet;
-			NPC.pool.values().stream().filter(npc->((InteractPacket)packet).target==npc.getEID()).forEach(npc->npc.onTouch(player));
+			NPC.pool.values().stream().filter(npc->((UseItemOnEntityData)((InventoryTransactionPacket)packet).transactionData).entityRuntimeId==npc.getEID()).forEach(npc->npc.onTouch(player));
 		}
 	}
 
@@ -123,7 +123,7 @@ public class NPC extends cn.nukkit.level.Location
 	public String level="";
 	public UUID uuid=null;
 	public String extra="";
-	public Skin skin=new Skin(new byte[Skin.SINGLE_SKIN_SIZE],"Standard_Custom");
+	public Skin skin=new Skin();
 
 	public NPC(String nid,String nametag,double x,double y,double z,Item handItem)
 	{
@@ -185,7 +185,7 @@ public class NPC extends cn.nukkit.level.Location
 			this.yaw=Utils.cast(cfg.getOrDefault("yaw",0));
 			this.pitch=Utils.cast(cfg.getOrDefault("pitch",0));
 			this.nametag=Utils.cast(cfg.getOrDefault("nametag",""));
-			this.skin.setModel(String.valueOf(cfg.getOrDefault("skinName",this.skin.getModel())));
+			this.skin.setSkinId(String.valueOf(cfg.getOrDefault("skinName","skin")));
 			this.extra=String.valueOf(cfg.getOrDefault("extra",""));
 			HashMap<String,Object> itemCfg=Utils.cast(cfg.getOrDefault("handItem",new HashMap<String,Object>()));
 			this.handItem=Item.get(Utils.cast(itemCfg.getOrDefault("id",0)),Utils.cast(itemCfg.getOrDefault("data",0)));
@@ -193,7 +193,8 @@ public class NPC extends cn.nukkit.level.Location
 			if(skinData.length>0)
 			{
 				this.skinpath=String.valueOf(cfg.getOrDefault("skin",""));
-				this.skin.setData(skinData);
+				this.skin.setSkinData(skinData);
+				this.skin.setTrusted(true);
 			}
 			return cfg;
 		}
@@ -211,7 +212,7 @@ public class NPC extends cn.nukkit.level.Location
 	{
 		if(path==null)
 		{
-			this.skin=new Skin(new byte[Skin.SINGLE_SKIN_SIZE],"Standard_Custom");
+			this.skin=new Skin();
 			return true;
 		}
 		else
@@ -226,8 +227,9 @@ public class NPC extends cn.nukkit.level.Location
 			{
 				return false;
 			}
-			this.skin.setData(skin);
+			this.skin.setSkinData(skin);
 			this.skinpath=path;
+
 			this.save();
 			this.spawnToAll();
 		}
@@ -325,7 +327,7 @@ public class NPC extends cn.nukkit.level.Location
 		extra.put("pitch",this.pitch);
 		extra.put("skin",this.skinpath);
 		extra.put("nametag",this.nametag);
-		extra.put("skinName",this.skin.getModel());
+		extra.put("skinName",this.skin.getSkinId());
 		extra.put("extra",this.extra);
 		HashMap<String,Object> handItem=new HashMap<>();
 		handItem.put("id",this.handItem.getId());
